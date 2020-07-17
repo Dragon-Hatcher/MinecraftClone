@@ -1,27 +1,20 @@
 package main;
 
-import java.util.Random;
+import java.util.ArrayList;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.Point;
 
 import camera.Camera;
-import entities.RenderedObject;
-import models.RawModel;
-import models.TexturedModel;
 import renderEngine.DisplayManager;
 import renderEngine.Loader;
 import renderEngine.Renderer;
 import shaders.StaticShader;
 import terrain.Chunk;
-import terrain.blocks.Air;
-import terrain.blocks.Block;
-import terrain.blocks.Dirt;
-import terrain.blocks.Grass;
-import textures.ModelTexture;
+import terrain.ChunkManager;
 import toolbox.SimplexNoise;
 
 public class GameLoop {
@@ -32,14 +25,12 @@ public class GameLoop {
 
 	private static Camera camera;
 
-	private static Chunk[][] chunks = new Chunk[4][4];
-
-	private static Random random = new Random(new Random().nextLong());
-
 	private static SimplexNoise noise;
+
+	private static ChunkManager chunkManager;
 	
 	public static void main(String[] args) {
-
+		
 		DisplayManager.createDisplay();
 		loader = new Loader();
 		shader = new StaticShader();
@@ -49,12 +40,8 @@ public class GameLoop {
 
 		noise = new SimplexNoise(System.nanoTime());
 
-		for (int cx = 0; cx < 4; cx++) {
-			for (int cy = 0; cy < 4; cy++) {
-				chunks[cx][cy] = new Chunk(noise, cx, cy);
-			}
-		}
-
+		chunkManager = new ChunkManager(noise, camera);
+		
 		try {
 			Mouse.create();
 		} catch (LWJGLException e) {
@@ -63,10 +50,22 @@ public class GameLoop {
 
 		Mouse.setGrabbed(true);
 
+		long second = System.currentTimeMillis() / 1000;
+		long oldSecond = second;
+		int count = 0;
+		
 		while (!Display.isCloseRequested()) {
 			update();
 			render();
 			draw();
+			
+			if(oldSecond != second) {
+				//System.out.println(count);
+				count = 0;
+			}
+			count++;
+			oldSecond = second;
+			second = System.currentTimeMillis() / 1000;
 		}
 
 		Mouse.destroy();
@@ -85,13 +84,14 @@ public class GameLoop {
 			camera.rotate(-dy / 5f, dx / 5f, 0);
 			camera.move();
 		}
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+
+		if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
 			Mouse.setGrabbed(false);
 		} else {
 			Mouse.setGrabbed(true);
 		}
-
+		
+		chunkManager.update();
 	}
 
 	private static void render() {
@@ -100,12 +100,11 @@ public class GameLoop {
 		shader.loadViewMatrix(camera);
 
 		// Render
-		for (int cx = 0; cx < 4; cx++) {
-			for (int cy = 0; cy < 4; cy++) {
-				renderer.render(chunks[cx][cy], shader);
-			}
+		ArrayList<Chunk> chunksToRender = chunkManager.getChunksToRender();
+		for(Chunk i : chunksToRender) {
+			renderer.render(i, shader);
 		}
-
+		
 		shader.stop();
 	}
 
