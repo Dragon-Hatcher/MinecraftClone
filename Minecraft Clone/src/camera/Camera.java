@@ -20,7 +20,7 @@ public class Camera {
 	}
 	
 	public void move() {
-		float speed = defualtSpeed * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 2f : 1f);
+		float speed = defualtSpeed * (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) ? 2.5f : 1f);
 		if(Keyboard.isKeyDown(Keyboard.KEY_W)) {
 			position.z -= Math.sin(Math.toRadians(90 + rotation.y)) * speed;
 			position.x -= Math.cos(Math.toRadians(90 + rotation.y)) * speed;
