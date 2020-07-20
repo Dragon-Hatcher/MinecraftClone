@@ -72,7 +72,9 @@ public class Chunk extends RenderedObject {
 						boolean onEdge = onEdge(x, y, z, direction);
 						Block.TransparentType neighborTransparentType = null;
 						if (onEdge) {
-							if (direction == Block.Direction.DOWN || direction == Block.Direction.UP) {
+							if (direction == Block.Direction.DOWN) {
+								shouldDrawFace = false;
+							} else if (direction == Block.Direction.UP) {
 								shouldDrawFace = true;
 							} else {
 								Chunk neighborChunk = myManager.getChunk(neighborChunk(direction));
@@ -139,30 +141,30 @@ public class Chunk extends RenderedObject {
 		Vector2f topLeft = block.getTextureMapPosition(direction);
 		float size = Block.textureMapBlockSize;
 
-		return new Float[] { topLeft.x, topLeft.y + size, topLeft.x + size, topLeft.y + size, topLeft.x + size,
-				topLeft.y, topLeft.x, topLeft.y, };
+		return new Float[] { topLeft.x + size, topLeft.y, topLeft.x + size, topLeft.y + size, topLeft.x,
+				topLeft.y + size, topLeft.x, topLeft.y, };
 	}
 
 	private Float[] cubeCoords(int x, int y, int z, Block.Direction direction) {
 		Float[] ret = { 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f };
 		switch (direction) {
 		case NORTH:
-			ret = new Float[] { -0.5f, 0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, };
+			ret = new Float[] { 0f, 1f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 1f, 1f, 0f, };
 			break;
 		case EAST:
-			ret = new Float[] { 0.5f, 0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, };
+			ret = new Float[] { 1f, 1f, 0f, 1f, 0f, 0f, 1f, 0f, 1f, 1f, 1f, 1f, };
 			break;
 		case SOUTH:
-			ret = new Float[] { -0.5f, 0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, 0.5f, };
+			ret = new Float[] { 0f, 1f, 1f, 0f, 0f, 1f, 1f, 0f, 1f, 1f, 1f, 1f, };
 			break;
 		case WEST:
-			ret = new Float[] { -0.5f, 0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, };
+			ret = new Float[] { 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 1f, 1f, };
 			break;
 		case UP:
-			ret = new Float[] { -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0.5f, };
+			ret = new Float[] { 0f, 1f, 1f, 0f, 1f, 0f, 1f, 1f, 0f, 1f, 1f, 1f, };
 			break;
 		case DOWN:
-			ret = new Float[] { -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, -0.5f, 0.5f, -0.5f, -0.5f, 0.5f, -0.5f, 0.5f, };
+			ret = new Float[] { 0f, 0f, 1f, 0f, 0f, 0f, 1f, 0f, 0f, 1f, 0f, 1f, };
 			break;
 		}
 		ret[0] += (float) x;
@@ -249,5 +251,24 @@ public class Chunk extends RenderedObject {
 		}
 		return null;
 	}
+	
+	public Block getBlock(int x, int y, int z) {
+		return blocks[x][y][z];
+	}
 
+	public static Point chunkPositionFromCoords(float x, float z) {
+		return new Point(
+				(int) Math.floor(Math.floor(x) / Chunk.CHUNK_WIDTH),
+				(int) Math.floor(Math.floor(z) / Chunk.CHUNK_WIDTH)
+		);
+	}
+	
+	public static Vector3f positionInChunkFromCoords(float x, float y, float z) {
+		return new Vector3f(
+				Math.floorMod((int)Math.floor(x), Chunk.CHUNK_WIDTH),
+				Math.floorMod((int)Math.floor(y), Chunk.CHUNK_WIDTH),
+				(int) (z)
+				);
+	}
+	
 }

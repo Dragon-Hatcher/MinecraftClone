@@ -56,5 +56,10 @@ public class RenderedObject {
 		this.scale = scale;
 	}
 	
+	public void cleanUp() {
+		if(model != null) {
+			model.cleanUp();
+		}
+	}
 	
 }

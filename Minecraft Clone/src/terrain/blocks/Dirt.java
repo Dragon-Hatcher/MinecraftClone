@@ -8,12 +8,12 @@ import terrain.blocks.Block.TransparentType;
 public class Dirt extends Block{
 
 	private static final Vector2f[] textureMapPositions = {
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
-			new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
+			Block.positionInTextureAtlas(3, 0),
+			Block.positionInTextureAtlas(3, 0),
+			Block.positionInTextureAtlas(3, 0),
+			Block.positionInTextureAtlas(3, 0),
+			Block.positionInTextureAtlas(3, 0),
+			Block.positionInTextureAtlas(3, 0),
 		};
 		
 		public Vector2f getTextureMapPosition(Direction direction) {
@@ -32,4 +32,20 @@ public class Dirt extends Block{
 			return TransparentType.OPAQUE;
 		}
 	
+		public boolean getFullBlock() {
+			return true;
+		}
+
+		public boolean fullFaceInDirection(Direction direction) {
+			return true;
+		}
+
+		public boolean getSolid() {
+			return true;
+		}
+
+		public String getDescription() {
+			return "Dirt";
+		}
+		
 }

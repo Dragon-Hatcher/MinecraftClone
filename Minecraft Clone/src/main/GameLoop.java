@@ -6,7 +6,6 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.Point;
 
 import camera.Camera;
 import renderEngine.DisplayManager;
@@ -28,6 +27,8 @@ public class GameLoop {
 	private static SimplexNoise noise;
 
 	private static ChunkManager chunkManager;
+	
+	private static int frameCount = 0;
 	
 	public static void main(String[] args) {
 		
@@ -52,18 +53,32 @@ public class GameLoop {
 
 		long second = System.currentTimeMillis() / 1000;
 		long oldSecond = second;
-		int count = 0;
+		int renderCount = 0;
+		int updateCount = 0;
+		
+		double targetTime = 1_000_000_000d / (double)DisplayManager.FPS_CAP;
+		double delta = 0;
+		long previousTime = System.nanoTime();
 		
 		while (!Display.isCloseRequested()) {
-			update();
+			long now = System.nanoTime();
+			delta += (now - previousTime)/targetTime;
+			previousTime = now;
+			
+			while(delta >= 1) {
+				update();
+				delta--;
+				updateCount++;
+			}
 			render();
 			draw();
 			
 			if(oldSecond != second) {
-				//System.out.println(count);
-				count = 0;
+				System.out.println("Render: " + renderCount + ", Update: " + updateCount);
+				renderCount = 0;
+				updateCount = 0;
 			}
-			count++;
+			renderCount++;
 			oldSecond = second;
 			second = System.currentTimeMillis() / 1000;
 		}
@@ -91,7 +106,12 @@ public class GameLoop {
 			Mouse.setGrabbed(true);
 		}
 		
+		
 		chunkManager.update();
+		
+		camera.collide(chunkManager);
+		
+		frameCount++;
 	}
 
 	private static void render() {

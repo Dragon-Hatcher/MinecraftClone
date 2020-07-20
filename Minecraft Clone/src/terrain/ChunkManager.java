@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.lwjgl.util.Point;
-import org.lwjgl.util.vector.Vector2f;
 
 import camera.Camera;
 import toolbox.SimplexNoise;
 
-public class ChunkManager {
+public class ChunkManager implements Runnable {
 
 	private static final int RENDER_DISTANCE = 10;
 	private static ArrayList<Point> relativeChunkPositions = new ArrayList<Point>();
+	
+	private static int MAX_STORED_CHUNKS = 1000;
 	
 	private HashMap<Point, Chunk> chunks = new HashMap<Point, Chunk>();
 	private SimplexNoise noise;
@@ -35,9 +36,14 @@ public class ChunkManager {
 		}
 	}
 	
+	public void run() {
+		update();
+	}
+	
 	public void update() {
-		int chunkX = (int)camera.getPosition().x / Chunk.CHUNK_WIDTH;
-		int chunkY = (int)camera.getPosition().z / Chunk.CHUNK_WIDTH;
+		Point chunkCoords = Chunk.chunkPositionFromCoords(camera.getPosition().x, camera.getPosition().z);
+		int chunkX = chunkCoords.getX();
+		int chunkY = chunkCoords.getY();
 		
 		for(Point relPosition : relativeChunkPositions) {
 			Point absPosition = new Point(chunkX + relPosition.getX(), chunkY + relPosition.getY());
@@ -49,13 +55,32 @@ public class ChunkManager {
 				chunks.get(absPosition).updateModel();				
 			}
 		}
+		//System.out.println(chunks.size());
+		
+		while(chunks.size() > MAX_STORED_CHUNKS) {
+			Point maxPoint = new Point(0, 0);
+			int maxDistance = -1;
+
+			for(Point i : chunks.keySet()) {
+				int distance = Math.abs(i.getX() - chunkX) + Math.abs(i.getY() - chunkY);
+				if(distance > maxDistance) {
+					maxPoint = i;
+					maxDistance = distance;
+				}
+			}
+			
+			chunks.get(maxPoint).cleanUp();
+			chunks.remove(maxPoint);
+		}
 	}
 	
 	public ArrayList<Chunk> getChunksToRender() {
 		ArrayList<Chunk> ret = new ArrayList<Chunk>();
 		
-		int chunkX = (int)camera.getPosition().x / Chunk.CHUNK_WIDTH;
-		int chunkY = (int)camera.getPosition().z / Chunk.CHUNK_WIDTH;
+		Point chunkCoords = Chunk.chunkPositionFromCoords(camera.getPosition().x, camera.getPosition().z);
+		int chunkX = chunkCoords.getX();
+		int chunkY = chunkCoords.getY();
+
 		for(Point relPosition : relativeChunkPositions) {
 			Point absPosition = new Point(chunkX + relPosition.getX(), chunkY  + relPosition.getY());
 			if(chunks.containsKey(absPosition) && chunks.get(absPosition).getModel() != null) {

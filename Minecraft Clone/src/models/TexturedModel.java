@@ -28,5 +28,9 @@ public class TexturedModel {
 		this.texture = texture;
 	}
 	
+	public void cleanUp() {
+		rawModel.cleanUp();
+		texture.cleanUp();
+	}
 	
 }

@@ -2,15 +2,17 @@ package terrain.blocks;
 
 import org.lwjgl.util.vector.Vector2f;
 
+import terrain.blocks.Block.Direction;
+
 public class Grass extends Block {
 
 	private static final Vector2f[] textureMapPositions = {
-		new Vector2f(Block.textureMapBlockSize * 0, Block.textureMapBlockSize * 3),
-		new Vector2f(Block.textureMapBlockSize * 0, Block.textureMapBlockSize * 3),
-		new Vector2f(Block.textureMapBlockSize * 0, Block.textureMapBlockSize * 3),
-		new Vector2f(Block.textureMapBlockSize * 0, Block.textureMapBlockSize * 3),
-		new Vector2f(Block.textureMapBlockSize * 0, Block.textureMapBlockSize * 0),
-		new Vector2f(Block.textureMapBlockSize * 3, Block.textureMapBlockSize * 0),
+			Block.positionInTextureAtlas(0, 3),
+			Block.positionInTextureAtlas(0, 3),
+			Block.positionInTextureAtlas(0, 3),
+			Block.positionInTextureAtlas(0, 3),
+			Block.positionInTextureAtlas(0, 0),
+			Block.positionInTextureAtlas(3, 0),
 	};
 	
 	public Vector2f getTextureMapPosition(Direction direction) {
@@ -27,6 +29,22 @@ public class Grass extends Block {
 
 	public TransparentType getTransparent() {
 		return TransparentType.OPAQUE;
+	}
+	
+	public boolean getFullBlock() {
+		return true;
+	}
+
+	public boolean fullFaceInDirection(Direction direction) {
+		return true;
+	}
+
+	public boolean getSolid() {
+		return true;
+	}
+	
+	public String getDescription() {
+		return "Grass";
 	}
 	
 }

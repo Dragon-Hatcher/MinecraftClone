@@ -1,5 +1,9 @@
-/main/
-/terrain/
 /camera/
+/entities/
+/main/
+/models/
 /renderEngine/
+/shaders/
+/terrain/
+/textures/
 /toolbox/
